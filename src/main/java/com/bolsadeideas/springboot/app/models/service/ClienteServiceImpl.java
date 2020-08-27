@@ -93,4 +93,16 @@ public class ClienteServiceImpl implements IClienteService {
 		facturaDao.deleteById(id);
 		
 	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Factura fetchFacturaByIdWithClienteWhitItemFacturaWhitProducto(Long id) {
+		return facturaDao.fetchByIdWithClienteWhitItemFacturaWhitProducto(id);
+	}
+
+	@Override
+	@Transactional(readOnly = true)
+	public Cliente fetchByWithFacturas(Long id) {
+		return clienteDao.fetchByIdWithFacturas(id);
+	}
 }
