@@ -1,20 +1,11 @@
 package com.bolsadeideas.springboot.app;
 
 import java.util.Locale;
-
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
-
-// import java.nio.file.Paths;
-
-//import org.slf4j.Logger;
-//import org.slf4j.LoggerFactory;
-
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.servlet.LocaleResolver;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
-import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.ViewControllerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.servlet.i18n.LocaleChangeInterceptor;
@@ -22,54 +13,60 @@ import org.springframework.web.servlet.i18n.SessionLocaleResolver;
 
 @Configuration
 public class MvcConfig implements WebMvcConfigurer {
-	
-	
-	/*private final Logger log = LoggerFactory.getLogger(getClass());
 
-	@Override
-	public void addResourceHandlers(ResourceHandlerRegistry registry) {
-		 TODO Auto-generated method stub
-		WebMvcConfigurer.super.addResourceHandlers(registry);
+	/*
+	 * private final Logger log = LoggerFactory.getLogger(getClass());
+	 * 
+	 * @Override public void addResourceHandlers(ResourceHandlerRegistry registry) {
+	 * TODO Auto-generated method stub
+	 * WebMvcConfigurer.super.addResourceHandlers(registry);
+	 * 
+	 * String resourcePath =
+	 * Paths.get("uploads").toAbsolutePath().toUri().toString();
+	 * log.info(resourcePath);
+	 * 
+	 * registry.addResourceHandler("/uploads/**")
+	 * .addResourceLocations(resourcePath);
+	 * 
+	 * }
+	 */
 
-		String resourcePath = Paths.get("uploads").toAbsolutePath().toUri().toString();
-		log.info(resourcePath);
-		
-		registry.addResourceHandler("/uploads/**")
-		.addResourceLocations(resourcePath);
-		
-	}*/
-	
+	// Mapeao una ruta a una vista de error sin lógica de negocio, solo mapeo (view
+	// controller)
+
 	public void addViewControllers(ViewControllerRegistry registry) {
-		registry.addViewController("/error_403").setViewName("error_403"); //el view controller registry sirve para cuando necesitamos mapear una ruta a una vista sin logica de negocio en el controlador
+		registry.addViewController("/error_403").setViewName("error_403");
 	}
-	
+
 	@Bean
 	public BCryptPasswordEncoder passwordEncoder() {
 		return new BCryptPasswordEncoder();
 	}
-	
+
+	// Multilenguaje, se guarda en sessionLocale
+
 	@Bean
 	public LocaleResolver localeResolver() {
-		SessionLocaleResolver localeResolver = new SessionLocaleResolver(); //se guarda en la session locale (donde se va a guardar el locale
-		localeResolver.setDefaultLocale(new Locale("es","ES"));
+		SessionLocaleResolver localeResolver = new SessionLocaleResolver();
+		localeResolver.setDefaultLocale(new Locale("es", "ES"));
 		return localeResolver;
 	}
-	
+
+	// Interceptor para detectar lenguaje
+
 	@Bean
 	public LocaleChangeInterceptor localeChangeInterceptor() {
 		LocaleChangeInterceptor localeChangeInterceptor = new LocaleChangeInterceptor();
-		localeChangeInterceptor.setParamName("lang");//cada vez que se pase el parametro por url el parametro lang se ejecuta este interceptor
-		return localeChangeInterceptor;
+		localeChangeInterceptor.setParamName("lang");// cada vez que se pase el parametro por url el parametro lang se
+		return localeChangeInterceptor; // ejecuta este interceptor
 	}
+
+	// Registro interceptor
 
 	@Override
 	public void addInterceptors(InterceptorRegistry registry) {
 		// TODO Auto-generated method stub
-		registry.addInterceptor(localeChangeInterceptor()); //registro el interceptor
+		registry.addInterceptor(localeChangeInterceptor()); // registro el interceptor
 	}
-	
-	
-	
-	
 
 }

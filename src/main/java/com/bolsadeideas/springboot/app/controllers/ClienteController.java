@@ -9,7 +9,6 @@ import java.util.Map;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 
-import org.apache.juli.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.MessageSource;
 import org.springframework.core.io.Resource;
@@ -33,7 +32,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -44,22 +42,20 @@ import com.bolsadeideas.springboot.app.models.service.IClienteService;
 import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 import com.bolsadeideas.springboot.app.util.paginator.PageRender;
 
-
-@Controller //todo sus metodos van a responder con un responsebody
+@Controller
 @SessionAttributes("cliente")
 public class ClienteController {
-	
 
 	@Autowired
 	private IClienteService clienteService;
 
 	@Autowired
 	private IUploadFileService uploadFileService;
-	
+
 	@Autowired
-	private MessageSource messageSource; //obtenemos el idioma
-	
-	@Secured("ROLE_USER")
+	private MessageSource messageSource; // obtenemos el idioma
+
+	@Secured("ROLE_USER") //seguridad
 	@GetMapping(value = "/uploads/{filename:.+}")
 	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
 
@@ -76,12 +72,14 @@ public class ClienteController {
 				.header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + recurso.getFilename() + "\"")
 				.body(recurso);
 	}
+	
+	//detalle de cliente
 
 	@Secured("ROLE_USER")
 	@GetMapping(value = "/ver/{id}")
 	public String ver(@PathVariable(value = "id") Long id, Map<String, Object> model, RedirectAttributes flash) {
 
-		Cliente cliente = clienteService.fetchByWithFacturas(id);//clienteService.findOne(id);
+		Cliente cliente = clienteService.fetchByWithFacturas(id);// clienteService.findOne(id);
 		if (cliente == null) {
 			flash.addFlashAttribute("error", "El cliente no existe en la base de datos");
 			return "redirect:/listar";
@@ -92,31 +90,35 @@ public class ClienteController {
 		return "ver";
 	}
 
-	@RequestMapping(value = {"/listar", "/"}, method = RequestMethod.GET)
-	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model, Authentication authentication, HttpServletRequest request
-			, Locale locale) {
-		
-		if(authentication != null) {
-			System.out.println("El user es"+authentication.getName());
+	//listado de clientes
+	
+	@RequestMapping(value = { "/listar", "/" }, method = RequestMethod.GET)
+	public String listar(@RequestParam(name = "page", defaultValue = "0") int page, Model model,
+			Authentication authentication, HttpServletRequest request, Locale locale) {
+
+		if (authentication != null) {
+			System.out.println("El user es" + authentication.getName());
 		}
-		
-		Authentication auth = SecurityContextHolder.getContext().getAuthentication(); //obteniendo autentication de forma statica
-		
-		if(authentication != null) {
-			System.out.println("El user es utilizando forma statica"+auth.getName());
+
+		Authentication auth = SecurityContextHolder.getContext().getAuthentication(); // obteniendo autentication de
+																						// forma statica
+
+		if (authentication != null) {
+			System.out.println("El user es utilizando forma statica" + auth.getName());
 		}
-		
-		if(hasRole("ROLE_ADMIN")) {
+
+		if (hasRole("ROLE_ADMIN")) {
 			System.out.println("tienes accesoo");
 		}
-		
-		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request,"ROLE_");
-		
-		if(securityContext.isUserInRole("ADMIN")) {
+
+		SecurityContextHolderAwareRequestWrapper securityContext = new SecurityContextHolderAwareRequestWrapper(request,
+				"ROLE_");
+
+		if (securityContext.isUserInRole("ADMIN")) {
 			System.out.println("tienes accesoo USANDO SecurityContextHolderAwareRequestWrapper");
 		}
-		
-		if(request.isUserInRole("ROLE_ADMIN")) {
+
+		if (request.isUserInRole("ROLE_ADMIN")) {
 			System.out.println("tienes accesoo USANDO HTTPSERVLET");
 		}
 
@@ -125,11 +127,13 @@ public class ClienteController {
 		Page<Cliente> clientes = clienteService.findAll(pageRequest);
 
 		PageRender<Cliente> pageRender = new PageRender<Cliente>("/listar", clientes);
-		model.addAttribute("titulo", messageSource.getMessage("text.cliente.listar.titulo", null ,locale));
+		model.addAttribute("titulo", messageSource.getMessage("text.cliente.listar.titulo", null, locale));
 		model.addAttribute("clientes", clientes);
 		model.addAttribute("page", pageRender);
 		return "listar";
 	}
+
+	//formulario de cliente, crear nuevo cliente
 	
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form")
@@ -140,6 +144,8 @@ public class ClienteController {
 		model.put("titulo", "Formulario de Cliente");
 		return "form";
 	}
+
+	//editar cliente
 	
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form/{id}")
@@ -161,6 +167,8 @@ public class ClienteController {
 		model.put("titulo", "Editar Cliente");
 		return "form";
 	}
+	
+	//almacenar cliente
 
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/form", method = RequestMethod.POST)
@@ -201,6 +209,8 @@ public class ClienteController {
 		return "redirect:listar";
 	}
 
+	//eliminar de cliente
+	
 	@Secured("ROLE_ADMIN")
 	@RequestMapping(value = "/eliminar/{id}")
 	public String eliminar(@PathVariable(value = "id") Long id, RedirectAttributes flash) {
@@ -218,31 +228,33 @@ public class ClienteController {
 		}
 		return "redirect:/listar";
 	}
-	
+
 	private boolean hasRole(String role) {
-		
+
 		SecurityContext context = SecurityContextHolder.getContext();
-		
-		if(context == null) {
+
+		if (context == null) {
 			return false;
 		}
-		
+
 		Authentication auth = context.getAuthentication();
-		
-		if(auth == null) {
+
+		if (auth == null) {
 			return false;
 		}
-		
-		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities(); //culaquier role de nuestro desarrolle debe implementar la interfaz granted autority
-		
-		/*for(GrantedAuthority authority: authorities) {
-			if(role.equals(authority.getAuthority())) {
-				return true;
-			}
-		}*/
-		
-		return authorities.contains(new SimpleGrantedAuthority(role)); //devuelve true si esta en role sobre el usuario autennticado
-		
+
+		Collection<? extends GrantedAuthority> authorities = auth.getAuthorities(); // culaquier role de nuestro
+																					// desarrolle debe implementar la
+																					// interfaz granted autority
+
+		/*
+		 * for(GrantedAuthority authority: authorities) {
+		 * if(role.equals(authority.getAuthority())) { return true; } }
+		 */
+
+		return authorities.contains(new SimpleGrantedAuthority(role)); // devuelve true si esta en role sobre el usuario
+																		// autennticado
+
 	}
-	
+
 }

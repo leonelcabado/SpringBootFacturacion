@@ -20,35 +20,35 @@ import com.bolsadeideas.springboot.app.models.entity.Role;
 import com.bolsadeideas.springboot.app.models.entity.Usuario;
 
 @Service("jpaUserDetailsSerivce")
-public class JpaUserDetailsService implements UserDetailsService{//no se genera interface ya que la interface la provee spring security para utilizar jpa para el login
-
+public class JpaUserDetailsService implements UserDetailsService {// no se genera interface ya que la interface la provee spring security para utilizar jpa para el
+																	// login 
 	@Autowired
 	private IUsuarioDao usuarioDao;
-	
+
 	private Logger logger = LoggerFactory.getLogger(JpaUserDetailsService.class);
-	
+
 	@Override
 	@Transactional(readOnly = true)
 	public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
 
-		Usuario usuario = usuarioDao.findByUsername(username); //obtengo usuario
-		
-		if(usuario == null) {
+		Usuario usuario = usuarioDao.findByUsername(username); // obtengo usuario
+
+		if (usuario == null) {
 			logger.error("error login: no existe el usuario");
-			throw new UsernameNotFoundException("Username"+username+" no existe en el sistema!");
+			throw new UsernameNotFoundException("Username" + username + " no existe en el sistema!");
 		}
-		
+
 		List<GrantedAuthority> authorities = new ArrayList<GrantedAuthority>();
-		
-		for (Role role: usuario.getRoles()) {
-			authorities.add(new SimpleGrantedAuthority(role.getAuthority())); //recorro los roles del usuario
+
+		for (Role role : usuario.getRoles()) {
+			authorities.add(new SimpleGrantedAuthority(role.getAuthority())); // recorro los roles del usuario
 		}
-		
-		if(authorities.isEmpty()) {
+
+		if (authorities.isEmpty()) {
 			logger.error("error login: usuario no tiene roles");
 			throw new UsernameNotFoundException("Username no tiene roles");
 		}
-		
-		return new User(username, usuario.getPassword(), usuario.getEnabled(), true, true, true, authorities); //devuelve un user detail que es el autenticado
-	} 
+
+		return new User(username, usuario.getPassword(), usuario.getEnabled(), true, true, true, authorities); // devuelve  un user detail que es el autenticado
+	}
 }

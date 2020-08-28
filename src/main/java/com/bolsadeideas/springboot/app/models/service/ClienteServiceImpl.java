@@ -1,7 +1,6 @@
 package com.bolsadeideas.springboot.app.models.service;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -24,7 +23,7 @@ public class ClienteServiceImpl implements IClienteService {
 
 	@Autowired
 	private IProductoDao productoDao;
-	
+
 	@Autowired
 	private IFacturaDao facturaDao;
 
@@ -72,7 +71,7 @@ public class ClienteServiceImpl implements IClienteService {
 	@Transactional
 	public void saveFactura(Factura factura) {
 		facturaDao.save(factura);
-		
+
 	}
 
 	@Override
@@ -91,7 +90,7 @@ public class ClienteServiceImpl implements IClienteService {
 	@Transactional
 	public void deleteFactura(Long id) {
 		facturaDao.deleteById(id);
-		
+
 	}
 
 	@Override
