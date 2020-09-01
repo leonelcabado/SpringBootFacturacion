@@ -26,12 +26,14 @@ import com.lowagie.text.pdf.PdfWriter;
 @Component("factura/ver") // en vez de mostrar la vista muestra el pdf en base a esta clase
 public class FacturaPdfView extends AbstractPdfView{
 	
+	@SuppressWarnings("unused")
 	@Autowired
 	private MessageSource messageSource;
 	
 	@Autowired
 	private LocaleResolver localeResolver;
 
+	@SuppressWarnings("unused")
 	@Override
 	protected void buildPdfDocument(Map<String, Object> model, Document document, PdfWriter writer,
 			HttpServletRequest request, HttpServletResponse response) throws Exception {
