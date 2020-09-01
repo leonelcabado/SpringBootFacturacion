@@ -20,6 +20,9 @@ import javax.persistence.Table;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
 import javax.validation.constraints.NotEmpty;
+import javax.xml.bind.annotation.XmlTransient;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "facturas")
@@ -39,6 +42,7 @@ public class Factura implements Serializable {
 	private Date createAt;
 
 	@ManyToOne(fetch = FetchType.LAZY)
+	@JsonBackReference //parte posterior de la relacion y se omite de la serializacion a json
 	private Cliente cliente;
 
 	@OneToMany(fetch = FetchType.LAZY, cascade = CascadeType.ALL)
@@ -86,6 +90,7 @@ public class Factura implements Serializable {
 		this.createAt = createAt;
 	}
 
+	@XmlTransient //cuando se serializa a xml omite este metodo para que no se produzca loop infinito
 	public Cliente getCliente() {
 		return cliente;
 	}

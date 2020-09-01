@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.SessionAttributes;
 import org.springframework.web.bind.support.SessionStatus;
 import org.springframework.web.multipart.MultipartFile;
@@ -41,6 +42,7 @@ import com.bolsadeideas.springboot.app.models.entity.Cliente;
 import com.bolsadeideas.springboot.app.models.service.IClienteService;
 import com.bolsadeideas.springboot.app.models.service.IUploadFileService;
 import com.bolsadeideas.springboot.app.util.paginator.PageRender;
+import com.bolsadeideas.springboot.app.view.xml.ClienteList;
 
 @Controller
 @SessionAttributes("cliente")
@@ -55,6 +57,12 @@ public class ClienteController {
 	@Autowired
 	private MessageSource messageSource; // obtenemos el idioma
 
+	@GetMapping(value = "/listarREST")
+	@ResponseBody
+	public ClienteList listarREST() {
+		return new ClienteList(clienteService.findAll()); //salida en json o xml
+	}
+	
 	@Secured("ROLE_USER") //seguridad
 	@GetMapping(value = "/uploads/{filename:.+}")
 	public ResponseEntity<Resource> verFoto(@PathVariable String filename) {
